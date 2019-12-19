@@ -32,15 +32,6 @@
 #include <tinysh.h>
 
 /******************************************************************************/
-/* TODO: This stuff is here temporarily until a sane console implementation */
-/*    is in place */
-/******************************************************************************/
-extern volatile unsigned short keybd_last_key;
-extern volatile unsigned char keybd_last_scan;
-#define is_key_pressed(x) (!(x & 0x80))
-extern void cc_keybd_dobs();
-
-/******************************************************************************/
 /* This function is required for the tinysh integration */
 void tinysh_char_out(unsigned char c)
 /******************************************************************************/
@@ -70,8 +61,7 @@ static void ps_command(int argc, char **argv)
   ps();
 }
 
-void test_task()
-{
+void test_task() {
   cc_printf("\n");
   for (int i = 0; i < 5; ++i) {
     cc_printf(".");
@@ -97,25 +87,22 @@ extern void demo_command(int argc, char **argv);
 /******************************************************************************/
 
 static tinysh_cmd_t version_cmd = {
-  0, "ver", "show the operating system version", "[args]", version_command, 0,
-  0, 0
-};
+    0, "ver", "show the operating system version", "[args]", version_command, 0,
+    0, 0};
 
 static tinysh_cmd_t clear_cmd = {
-  0, "clear", "clear the console", "[args]", clear_command, 0, 0, 0
-};
+    0, "clear", "clear the console", "[args]", clear_command, 0, 0, 0};
 
 static tinysh_cmd_t ps_cmd = {
-  0, "ps", "print the task list and state", "[args]", ps_command, 0, 0, 0
-};
+    0, "ps", "print the task list and state", "[args]", ps_command, 0, 0, 0};
 
 static tinysh_cmd_t demo_cmd = {
-  0, "demo", "multitasking demo", "[args]", demo_command, 0, 0, 0
-};
+    0, "demo", "multitasking demo", "[args]", demo_command, 0, 0, 0};
 
 static tinysh_cmd_t exit_test_cmd = {
-  0, "exit-test", "exit-test [wait]", "[args]", testexit_command, 0, 0, 0
-};
+    0, "exit-test", "exit-test [wait]", "[args]", testexit_command, 0, 0, 0};
+
+extern unsigned char cc_getch();
 
 /******************************************************************************/
 void command_shell_task()
@@ -134,13 +121,8 @@ void command_shell_task()
   tinysh_add_command(&demo_cmd);
   tinysh_add_command(&exit_test_cmd);
 
-  /* TODO: the console input logic should be abstracted and put somewhere else
-   */
   for (;;) {
-    block(); /* wait for the keyboard IRQ to be triggered */
-    if (is_key_pressed(keybd_last_scan)) {
-      tinysh_char_in((unsigned char)keybd_last_key);
-    }
+    tinysh_char_in(cc_getch());
   }
 
   cc_printf("\nNote: Interactive shell exited by the user. System halted.");
