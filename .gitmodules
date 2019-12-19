@@ -1,0 +1,4 @@
+[submodule "src/modules/micropython"]
+	path = src/modules/micropython
+	url = git@github.com:fred-sauter/micropython.git
+	branch = fenix-port
