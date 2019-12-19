@@ -26,6 +26,7 @@ KERNEL=${BIN_DIR}/${KERNEL_IMG}
 DISK_IMG=${IMG_DIR}/fenix.img
 SRCS=ccio.c cckeybrd.c shell.c demo.c
 OBJS=$(SRCS:%.c=$(OBJ_DIR)/%.o)
+LIBS=-Lmodules/micropython/ports/fenix/build -lmicropython
 ARCH=IA32
 
 ## ia32init.o must go first!
@@ -67,14 +68,18 @@ kernel: ${KERNEL}
 run: ${DISK_IMG}
 	${UTIL_DIR}/startvm.py --disk-image ${DISK_IMG}
 
+MICROPYTHON_DIR=modules/micropython/ports/fenix
+MICROPYTHON_BUILD_DIR=${MICROPYTHON_DIR}/build
+
 clean:
 	@rm -f ${OBJS} ${KERNEL} ${GRUB_CONFIG}
 	make -C $(IA32_DIR) clean
 	make -C $(SV_DIR) clean
 	make -C $(LIB_DIR) clean
+	make -C $(MICROPYTHON_DIR) clean
 
 distclean: clean
-	rm -rf $(BIN_DIR) $(OBJ_DIR) ${IMG_DIR}
+	rm -rf $(BIN_DIR) $(OBJ_DIR) ${IMG_DIR} ${MICROPYTHON_BUILD_DIR}
 
 dirs:
 	mkdir -p $(BIN_DIR) $(OBJ_DIR) ${IMG_DIR}
@@ -82,11 +87,18 @@ dirs:
 ${DISK_IMG}: ${KERNEL}
 	${UTIL_DIR}/mkbootdisk.py --kernel-image ${KERNEL} --disk-image ${DISK_IMG}
 
-${KERNEL}: dirs ${OBJS} tinysh
+${KERNEL}: dirs ${OBJS} tinysh libmicropython.a
 	ARCH=$(ARCH) make -C $(IA32_DIR) all
 	ARCH=$(ARCH) make -C $(SV_DIR) all
 	ARCH=$(ARCH) make -C $(LIB_DIR) all
-	${LD} -o ${KERNEL} ${LDFLAGS}  ${IA32_OBJS} ${OBJS} $(OBJ_DIR)/$(LIB_DIR)/*.o $(OBJ_DIR)/$(SV_DIR)/*.o $(OBJ_DIR)/tinysh.o
+	${LD} -o ${KERNEL} ${LIBS} ${LDFLAGS}  ${IA32_OBJS} ${OBJS} $(OBJ_DIR)/$(LIB_DIR)/*.o $(OBJ_DIR)/$(SV_DIR)/*.o $(OBJ_DIR)/tinysh.o
+
+libmicropython.a:
+	cd modules && \
+		git submodule sync && \
+		git submodule update --init && \
+		cd ..
+	make -C $(MICROPYTHON_DIR) build/libmicropython.a
 
 tinysh: tinysh.c
 	${CC} -o $(OBJ_DIR)/tinysh.o -c -m32 -nostartfiles \

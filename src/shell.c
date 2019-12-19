@@ -31,6 +31,11 @@
 #include <sys/svsyscalls.h>
 #include <tinysh.h>
 
+extern void demo_command(int argc, char **argv);
+extern int micropython_main(int argc, char **argv);
+
+extern unsigned char cc_getch();
+
 /******************************************************************************/
 /* This function is required for the tinysh integration */
 void tinysh_char_out(unsigned char c)
@@ -52,6 +57,13 @@ static void clear_command(int argc, char **argv)
 {
   cc_clear();
   cc_cpos_set(0, 0);
+}
+
+/******************************************************************************/
+static void python_command(int argc, char **argv)
+/******************************************************************************/
+{
+  micropython_main(0, NULL);
 }
 
 /******************************************************************************/
@@ -82,10 +94,6 @@ static void testexit_command(int argc, char **argv)
   }
 }
 
-/******************************************************************************/
-extern void demo_command(int argc, char **argv);
-/******************************************************************************/
-
 static tinysh_cmd_t version_cmd = {
     0, "ver", "show the operating system version", "[args]", version_command, 0,
     0, 0};
@@ -96,13 +104,14 @@ static tinysh_cmd_t clear_cmd = {
 static tinysh_cmd_t ps_cmd = {
     0, "ps", "print the task list and state", "[args]", ps_command, 0, 0, 0};
 
+static tinysh_cmd_t python_cmd = {
+    0, "python", "python interpreter", "[args]", python_command, 0, 0, 0};
+
 static tinysh_cmd_t demo_cmd = {
     0, "demo", "multitasking demo", "[args]", demo_command, 0, 0, 0};
 
 static tinysh_cmd_t exit_test_cmd = {
     0, "exit-test", "exit-test [wait]", "[args]", testexit_command, 0, 0, 0};
-
-extern unsigned char cc_getch();
 
 /******************************************************************************/
 void command_shell_task()
@@ -111,7 +120,7 @@ void command_shell_task()
   cc_clear();
 
   cc_printf("FENIX Interactive Shell\n");
-  cc_printf("Version 0.2\n");
+  cc_printf("Version 0.3\n");
   cc_printf("Copyright(C) 1995-2019 by Federico Sauter\n\n");
 
   tinysh_set_prompt("> ");
@@ -120,6 +129,7 @@ void command_shell_task()
   tinysh_add_command(&ps_cmd);
   tinysh_add_command(&demo_cmd);
   tinysh_add_command(&exit_test_cmd);
+  tinysh_add_command(&python_cmd);
 
   for (;;) {
     tinysh_char_in(cc_getch());
