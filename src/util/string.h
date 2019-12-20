@@ -29,6 +29,8 @@
 
 typedef unsigned int size_t;
 
+#define memmove(dest, src, n) memcpy(dest, src, n)
+
 /* Function descriptions taken from: The C Programming Language 2nd ed, by
  * Kerningham & Ritchie
  */
@@ -48,8 +50,6 @@ size_t strlen(const char *cs);
 
 /*  copy n characters from ct to s, and return s    */
 void *memcpy(void *s, const void *ct, size_t n);
-
-#define memmove(x, y, z) memcpy(x, y, z)
 
 /*  compare the first n characters of cs with ct; return as with strcmp */
 int memcmp(const void *cs, const void *ct, size_t n);
