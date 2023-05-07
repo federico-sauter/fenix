@@ -46,7 +46,7 @@ def create_disk_image(disk_image):
 
 def get_loop_device():
     return subprocess.run(
-        ["losetup", "--find"], check=True, stdout=subprocess.PIPE, encoding="utf-8"
+        ["sudo", "losetup", "--find"], check=True, stdout=subprocess.PIPE, encoding="utf-8"
     ).stdout.strip()
 
 
@@ -65,11 +65,11 @@ def attach_loop_devices(disk_image_file):
     offset = 1024 * 1024  # 1MB
 
     bootloader_dev = get_loop_device()
-    subprocess.run(["losetup", bootloader_dev, disk_image_file], check=True)
+    subprocess.run(["sudo", "losetup", bootloader_dev, disk_image_file], check=True)
 
     root_dev = get_loop_device()
     subprocess.run(
-        ["losetup", root_dev, disk_image_file, "-o", str(offset)], check=True
+        ["sudo", "losetup", root_dev, disk_image_file, "-o", str(offset)], check=True
     )
 
     try:
@@ -91,7 +91,7 @@ def attach_loop_devices(disk_image_file):
 
 def format_disk(device):
     print("Formatting disk {}...".format(device))
-    subprocess.run(["mkfs", "-t", "ext2", device], check=True)
+    subprocess.run(["sudo", "mkfs", "-t", "ext2", device], check=True)
 
 
 def mount_loop_dev(device, mount_point):

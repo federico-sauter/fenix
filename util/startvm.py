@@ -23,9 +23,8 @@ def main():
     subprocess.run(
         [
             "qemu-system-x86_64",
-            "-m",
-            "16",
-            "-curses",
+            "-m", "16",
+            "-display", "gtk,zoom-to-fit=on",
             "-smp",
             "1,cores=1,cpus=1",  # expose a single CPU to the guest
             "-hda",

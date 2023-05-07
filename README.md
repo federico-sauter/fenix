@@ -17,10 +17,10 @@ and implements a simple scheduler.
 
 ## Prerequisites
 
-The build system has been tested to work on Ubuntu 18.04 (bionic).
+The build system has been tested to work on Ubuntu 23.04 (lunar).
 To build and test FENIX on a VM, install the following packages:
 ```
-sudo apt-get install grub-pc-bin nasm qemu-kvm qemu virt-manager virt-viewer libvirt-bin
+sudo apt-get install build-essential nasm grub-pc-bin qemu-kvm virt-manager virt-viewer
 ```
 
 ## Build
